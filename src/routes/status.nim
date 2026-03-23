@@ -101,3 +101,35 @@ proc createStatusRouter*(cfg: Config) =
 
     get "/@name/thread/@id/?":
       redirect("/$1/status/$2" % [@"name", @"id"])
+
+    post "/i/action/like/@id":
+      let id = @"id"
+      if id.len == 0 or id.len > 19 or id.any(c => not c.isDigit):
+        resp Http400, showError("Invalid tweet ID", cfg)
+
+      await likeTweet(id)
+      redirect(refPath())
+
+    post "/i/action/bookmark/@id":
+      let id = @"id"
+      if id.len == 0 or id.len > 19 or id.any(c => not c.isDigit):
+        resp Http400, showError("Invalid tweet ID", cfg)
+
+      await bookmarkTweet(id)
+      redirect(refPath())
+
+    post "/i/action/unlike/@id":
+      let id = @"id"
+      if id.len == 0 or id.len > 19 or id.any(c => not c.isDigit):
+        resp Http400, showError("Invalid tweet ID", cfg)
+
+      await unlikeTweet(id)
+      redirect(refPath())
+
+    post "/i/action/unbookmark/@id":
+      let id = @"id"
+      if id.len == 0 or id.len > 19 or id.any(c => not c.isDigit):
+        resp Http400, showError("Invalid tweet ID", cfg)
+
+      await unbookmarkTweet(id)
+      redirect(refPath())

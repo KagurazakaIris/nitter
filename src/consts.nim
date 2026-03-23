@@ -25,6 +25,10 @@ const
   graphListBySlug* = "K6wihoTiTrzNzSF8y1aeKQ/ListBySlug"
   graphListMembers* = "fuVHh5-gFn8zDBBxb8wOMA/ListMembers"
   graphListTweets* = "VQf8_XQynI3WzH6xopOMMQ/ListTimeline"
+  likeCreateUrl* = "https://x.com/i/api/1.1/favorites/create.json"
+  likeDestroyUrl* = "https://api.x.com/1.1/favorites/destroy.json"
+  bookmarkCreateUrl* = "https://api.x.com/1.1/bookmark/entries/add.json"
+  bookmarkDestroyUrl* = "https://api.x.com/1.1/bookmark/entries/remove.json"
 
   gqlFeatures* = """{
   "android_ad_formats_media_component_render_overlay_enabled": false,

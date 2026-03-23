@@ -231,6 +231,32 @@ proc renderStats(stats: TweetStats): VNode =
     span(class="tweet-stat"): icon "heart", formatStat(stats.likes)
     span(class="tweet-stat"): icon "views", formatStat(stats.views)
 
+proc renderActions(tweet: Tweet; path: string): VNode =
+  buildHtml(tdiv(class="tweet-actions")):
+    form(`method`="post", action=("/i/action/like/" & $tweet.id), class="tweet-action-form"):
+      refererField path
+      button(`type`="submit", class="tweet-action-button"):
+        icon "heart"
+        text " Like"
+
+    form(`method`="post", action=("/i/action/unlike/" & $tweet.id), class="tweet-action-form"):
+      refererField path
+      button(`type`="submit", class="tweet-action-button secondary"):
+        icon "heart"
+        text " Unlike"
+
+    form(`method`="post", action=("/i/action/bookmark/" & $tweet.id), class="tweet-action-form"):
+      refererField path
+      button(`type`="submit", class="tweet-action-button"):
+        icon "link"
+        text " Bookmark"
+
+    form(`method`="post", action=("/i/action/unbookmark/" & $tweet.id), class="tweet-action-form"):
+      refererField path
+      button(`type`="submit", class="tweet-action-button secondary"):
+        icon "link"
+        text " Remove bookmark"
+
 proc renderReply(tweet: Tweet): VNode =
   buildHtml(tdiv(class="replying-to")):
     text "Replying to "
@@ -338,7 +364,8 @@ proc renderLocation*(tweet: Tweet): string =
   return $node
 
 proc renderTweet*(tweet: Tweet; prefs: Prefs; path: string; class=""; index=0;
-                  last=false; mainTweet=false; afterTweet=false; bigThumb=false): VNode =
+                  last=false; mainTweet=false; afterTweet=false; bigThumb=false;
+                  showActions=false): VNode =
   var divClass = class
   if index == -1 or last:
     divClass = "thread-last " & class
@@ -425,6 +452,9 @@ proc renderTweet*(tweet: Tweet; prefs: Prefs; path: string; class=""; index=0;
 
       if not prefs.hideTweetStats:
         renderStats(tweet.stats)
+
+      if showActions:
+        renderActions(tweet, path)
 
 proc renderTweetEmbed*(tweet: Tweet; path: string; prefs: Prefs; cfg: Config; req: Request): string =
   let node = buildHtml(html(lang="en")):

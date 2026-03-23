@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-import asyncdispatch, httpclient, strutils, sequtils, sugar
+import asyncdispatch, httpclient, strutils, sequtils, sugar, uri
 import packedjson
 import types, query, formatters, consts, apiutils, parser, utils
 import experimental/parser as newParser
@@ -217,3 +217,31 @@ proc resolve*(url: string; prefs: Prefs): Future[string] {.async.} =
     discard
   finally:
     client.close()
+
+proc likeTweet*(id: string): Future[void] {.async.} =
+  if id.len == 0 or id.any(c => not c.isDigit):
+    raise newException(ValueError, "Invalid tweet ID")
+
+  let body = encodeQuery(@[("id", id), ("tweet_mode", "extended")])
+  discard await writeCookieApi(likeCreateUrl, body)
+
+proc unlikeTweet*(id: string): Future[void] {.async.} =
+  if id.len == 0 or id.any(c => not c.isDigit):
+    raise newException(ValueError, "Invalid tweet ID")
+
+  let body = encodeQuery(@[("id", id), ("tweet_mode", "extended")])
+  discard await writeCookieApi(likeDestroyUrl, body)
+
+proc bookmarkTweet*(id: string): Future[void] {.async.} =
+  if id.len == 0 or id.any(c => not c.isDigit):
+    raise newException(ValueError, "Invalid tweet ID")
+
+  let body = encodeQuery(@[("tweet_id", id), ("tweet_mode", "extended")])
+  discard await writeCookieApi(bookmarkCreateUrl, body)
+
+proc unbookmarkTweet*(id: string): Future[void] {.async.} =
+  if id.len == 0 or id.any(c => not c.isDigit):
+    raise newException(ValueError, "Invalid tweet ID")
+
+  let body = encodeQuery(@[("tweet_id", id), ("tweet_mode", "extended")])
+  discard await writeCookieApi(bookmarkDestroyUrl, body)

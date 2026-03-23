@@ -215,6 +215,36 @@
   margin-right: 0.8em;
 }
 
+.tweet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+  margin-top: 0.5em;
+  pointer-events: all;
+}
+
+.tweet-action-form {
+  margin: 0;
+}
+
+.tweet-action-button {
+  background-color: transparent;
+  border: 1px solid var(--grey);
+  border-radius: 999px;
+  color: var(--fg_color);
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35em 0.8em;
+}
+
+.tweet-action-button:hover {
+  background-color: var(--bg_hover);
+}
+
+.tweet-action-button.secondary {
+  color: var(--grey);
+}
+
 .show-thread {
   display: block;
   pointer-events: all;

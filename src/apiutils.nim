@@ -218,3 +218,49 @@ proc fetchRaw*(req: ApiReq): Future[string] {.async.} =
       if not (result.startsWith('{') or result.startsWith('[')):
         echo resp.status, ": ", result, " --- url: ", url
         result.setLen(0)
+
+proc writeCookieApi*(url: string; body: string;
+                     contentType="application/x-www-form-urlencoded"): Future[string] {.async.} =
+  once:
+    pool = HttpPool()
+
+  var
+    session = getWriteSession()
+    resp: AsyncResponse
+    resultBody = ""
+    uri = parseUri(url)
+
+  try:
+    var headers = await genHeaders(session, uri)
+    headers["content-type"] = contentType
+
+    pool.use(headers):
+      if apiProxy.len > 0:
+        resp = await c.request(url.replace("https://", apiProxy), httpMethod=HttpPost, body=body)
+      else:
+        resp = await c.request(url, httpMethod=HttpPost, body=body)
+      resultBody = await resp.body
+
+      if resp.status == $Http503:
+        badClient = true
+        raise newException(BadClientError, "Bad client")
+
+    if resultBody.len > 0 and resp.headers.getOrDefault("content-encoding") == "gzip":
+      resultBody = uncompress(resultBody, dfGzip)
+
+    if not resp.status.startsWith("2"):
+      echo "Write error, ", uri.path, ": ", resp.status, " ", resultBody
+      raise newException(InternalError, url)
+
+    result = resultBody
+  except InternalError as e:
+    raise e
+  except BadClientError as e:
+    raise e
+  except OSError as e:
+    raise e
+  except Exception as e:
+    echo "write error: ", e.name, ", msg: ", e.msg, ", session: ", session.pretty, ", url: ", url
+    raise newException(InternalError, url)
+  finally:
+    release(session)

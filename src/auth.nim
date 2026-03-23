@@ -176,6 +176,23 @@ proc getSession*(req: ApiReq): Future[Session] {.async.} =
     log "no sessions available for API: ", req.cookie.endpoint
     raise noSessionsError()
 
+proc getWriteSession*(): Session =
+  for session in sessionPool:
+    if session.isNil:
+      continue
+    if session.kind != SessionKind.cookie:
+      continue
+    if session.pending > maxConcurrentReqs:
+      continue
+    if session.authToken.len == 0 or session.ct0.len == 0:
+      continue
+
+    inc session.pending
+    return session
+
+  log "no writable cookie sessions available"
+  raise noSessionsError()
+
 proc setLimited*(session: Session; req: ApiReq) =
   let api = req.endpoint(session)
   session.limited = true

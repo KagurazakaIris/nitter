@@ -57,7 +57,8 @@ proc renderConversation*(conv: Conversation; prefs: Prefs; path: string): VNode 
 
       tdiv(class="main-tweet", id="m"):
         let afterClass = if hasAfter: "thread thread-line" else: ""
-        renderTweet(conv.tweet, prefs, path, class=afterClass, mainTweet=true)
+        renderTweet(conv.tweet, prefs, path, class=afterClass, mainTweet=true,
+                    showActions=true)
 
       if hasAfter:
         tdiv(class="after-tweet thread-line"):
